@@ -1,8 +1,3 @@
-/* @font-face {
-    font-family: 'trellicons';
-    src:  url('trellicons-regular.ttf') format('truetype');
-} */
-
 .checkbox {
     width: 18px;
     height: 18px;
@@ -20,8 +15,8 @@
     box-shadow: inset 0 0 0 2px #0079bf;
 }
 
-.checkbox.enabled:before {
-    font-family: trellicons;
-    content: "\E913";
+.checkbox.enabled::before {
+    background: url(img/tick-icon.svg);
+    background-size: 18px 18px;
     color: #fff;
 }
