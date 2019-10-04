@@ -10,7 +10,7 @@ TrelloPowerUp.initialize({
       icon: `${window.location}img/icon.svg`,
       content: {
         type: 'iframe',
-        url: t.signUrl('./index.html'),
+        url: t.signUrl('./checklist.html'),
         height: 280,
       },  
     };
