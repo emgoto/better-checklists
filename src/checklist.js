@@ -1,38 +1,45 @@
+/* global TrelloPowerUp, axios, uuidv4 */
 
-var t = TrelloPowerUp.iframe();
+const t = TrelloPowerUp.iframe();
 
-// Store authentication token privately
-const authenticationSuccess = function () {
-  t.set('member', 'private', 'authToken', Trello.token());
-};
+document.getElementById('post').addEventListener('click', function () {
+  const { card: cardId, board: boardId } = t.getContext();
+  const key = 'bd1e7e486269d148ecd1be71ad5a3f1a';
+  const token = '1ea2726fc20a9e13eb9865c2fa7e3757260f804298e00d0280bccf7d29c2eed1'; // test token
+  const url = 'https://checklist-notifications.herokuapp.com/setNotification';
 
-document.getElementById('post').addEventListener('click', function() {
-      const { card:cardId, board:boardId } = t.getContext();
-      const token = `1ea2726fc20a9e13eb9865c2fa7e3757260f804298e00d0280bccf7d29c2eed1`; // test token
-      const url = 'https://checklist-notifications.herokuapp.com/setNotification';
-      const assignee="emgyoung";
-      const itemId="1"
-      const item="please do this thing";
-      const notificationTime = "1570261133";
+  const url2 = `https://api.trello.com/1/boards/${boardId}/members?key=${key}&token=${token}`;
 
-      const params = {
-        token,
-        itemId,
-        cardId,
-        boardId,
-        assignee,
-        item,
-        dueTime,
-      }
-        
-      return axios.post(url, {})
-        .then(function (response) {
-          console.log('response', response);
-                
-        }).catch(function (error) {
-          console.log('Error', error);
-        })
-        .finally(function () {
-          // always executed
-        });
+  axios.get(url2).then((response) => {console.log('done', response)});
+
+  const assignee = 'emgyoung';
+  const itemId = uuidv4();
+  const item = 'please do this thing';
+  const notificationTime = 1570261133;
+  const dueTime = 1570261132;
+
+
+  // const data = new URLSearchParams({
+  //   token,
+  //   itemId,
+  //   cardId,
+  //   boardId,
+  //   assignee,
+  //   item,
+  //   dueTime,
+  //   notificationTime,
+  // });
+
+  // axios({
+  //   method: 'post',
+  //   url,
+  //   data,
+  // }).then(function (response) {
+  //   console.log('response', response);
+  // }).catch(function (error) {
+  //   console.log('Error', error);
+  // })
+  //   .finally(function () {
+  //   // always executed
+  //   });
 });

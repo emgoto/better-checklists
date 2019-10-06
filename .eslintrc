@@ -3,5 +3,8 @@
     "extends": ["airbnb-base"],
     "rules": {
         "prefer-arrow-callback": "off"
+    },
+    "env": {
+        "browser": true
     }
 }

@@ -1,9 +1,29 @@
+body { 
+    background-color: #F4F5F7;
+}
+
+.item-container {
+    border-radius: 3px;
+    width: 700px;
+    display: flex;
+    align-items: center;
+}
+
+.item-container:hover {
+    background-color: rgba(9, 30, 66, 0.04);
+}
+
+.item-container:hover > div {
+    visibility: visible;
+}
+
 .checkbox {
     width: 18px;
     height: 18px;
     border-radius: 2px;
     box-shadow: inset 0 0 0 2px #dfe1e6;
     background-color: #fff;
+    margin-left: 10px;
 }
 
 .checkbox:hover {
@@ -11,12 +31,65 @@
 }
 
 .checkbox.enabled {
-    background-color: #0079bf;
+    color: #fff;
     box-shadow: inset 0 0 0 2px #0079bf;
+    background: #0079bf url(img/tick-icon.svg) 1px 1px/16px 16px;
 }
 
-.checkbox.enabled::before {
-    background: url(img/tick-icon.svg);
-    background-size: 18px 18px;
-    color: #fff;
+.item-text {
+    flex-grow: 2;
+    margin: 0 8px;
+}
+
+.avatar {
+    height: 32px;
+    width: 32px;
+    border-radius: 25em;
+    object-fit: cover;
+    margin: 4px;
+    background-color: transparent;
+}
+
+.avatar-button {
+    background: rgba(9,30,66,.04) url(img/add-icon.svg) 6px 6px/20px 20px no-repeat;
+    visibility: hidden;
+}
+
+.avatar-button:hover {
+    background-color: rgba(9,30,66,.08);
+}
+
+.meatballs {
+    visibility: hidden;
+    margin-right: 4px;
+    background: transparent url(img/meatballs.svg) 6px 2px/20px 20px no-repeat;
+    width: 32px;
+    height: 24px;
+}
+
+.meatballs:hover {
+    background-color: rgba(9,30,66,.08);
+    border-radius: 3px;
+}
+
+.due-date {
+    border-radius: 3px;
+    background-color: rgba(9,30,66,.04);
+    padding: 4px 8px;
+    padding-right: 0;
+    padding-left: 10px;
+    color: #172b4d;
+    display: flex;
+}
+
+.due-date:hover {
+    background-color: rgba(9,30,66,.08);
+}
+
+.due-date-icon {
+    background: transparent url(img/down.svg) 0px 0px/20px 20px no-repeat;
+    width: 20px;
+    height: 20px;
+    padding: 0 2px;
+    margin-left: 4px;
 }

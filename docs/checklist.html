@@ -4,17 +4,48 @@
         <link rel="stylesheet" href="checklist.css">
   </head>
   <body>
-    Hello world!
 
-    <button id="post">click me</button>
+    <!-- <button id="post">click me</button> -->
 
-    <div class="checkbox"></div>
+    <div class="item-container">
+      <div class="checkbox"></div>
+      <div class="item-text">Task with an avatar and due date</div>
+        <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
+        <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
 
-    <div class="checkbox enabled"></div>
+      <div class="meatballs"></div>
+    </div>
+
+    <div class="item-container">
+      <div class="checkbox enabled"></div>
+      <div class="item-text">Plain task</div>
+      <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
+      <div class="avatar avatar-button"></div>
+    <div class="meatballs"></div>
+  </div>
+
+    <div class="item-container">
+        <div class="checkbox enabled"></div>
+        <div class="item-text">Task with just an avatar</div>
+        <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/0231e3a1f25296ad07a0f86234495dae/50.png"/>
+      <div class="meatballs"></div>
+    </div>
+
+    <div class="item-container">
+        <div class="checkbox enabled"></div>
+        <div class="item-text">Task with just a due date</div>
+        <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
+        <div class="avatar avatar-button"></div>
+      <div class="meatballs"></div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script src="https://p.trellocdn.com/power-up.min.js"></script>
     <script src="https://trello.com/1/client.js?key=bd1e7e486269d148ecd1be71ad5a3f1a"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://wzrd.in/standalone/uuid%2Fv4@latest"></script>
     <script src="js/checklist.js"></script>
   </body>
 </html>
+
+
