@@ -2,9 +2,15 @@
     "compilerOptions": {
         "outDir": "./docs/js",
         "allowJs": true,
-        "target": "es6"
+        "target": "es6",
+        "moduleResolution": "node",
+        "lib": ["es2015", "es2016", "dom", "es2018.promise"],
+        "sourceMap": true
     },
     "include": [
-        "./src/**/*"
+        "./src/**/*", "tests/checklist.test.ts"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }

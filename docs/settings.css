@@ -1,0 +1,19 @@
+.buttons {
+    text-align: center
+}
+
+.enableButton {
+    margin: 0;
+    margin-left: 8px;
+    height: 33px;
+}
+
+.how-to-use {
+    float: right;
+    padding-top: 8px;
+}
+  
+.how-to-use:hover {
+    color: #78909e;
+    cursor:pointer;
+}

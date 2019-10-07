@@ -1,10 +1,12 @@
-/* global, TrelloPowerUp, axios, uuidv4 */
+/* global axios uuidv4 */
 import { reorderArray } from './checklist-util';
+import { ChecklistItem } from './trello-util';
 declare const Draggable: any;
+declare const TrelloPowerUp: any;
 
-const t = TrelloPowerUp.iframe()
+const t = TrelloPowerUp.iframe();
 
-const renderItem = (item) => `<div class="item-container draggable-source">
+const renderItem = (item: ChecklistItem): string => `<div class="item-container draggable-source">
   <div class="checkbox"></div>
   <div class="item-text">Task with an avatar and due date ${item}</div>
     <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
@@ -12,16 +14,46 @@ const renderItem = (item) => `<div class="item-container draggable-source">
   <div class="meatballs"></div>
   </div>`;
 
-const itemsList = ['1', '2', '3'];
-itemsList.map((item) => $('#checklist-container').append(renderItem(item)));
+const items = [{
+  text: '1'
+}, 
+{
+  text: '2'
+},
+{
+  text: '3'
+}];
 
-const sortable = new Draggable.Sortable(
-  document.querySelector('#checklist-container'),
-);
 
-sortable.on('sortable:stop', (event) => {
-  console.log(event.oldIndex, event.newIndex);
+const renderChecklist = () => {
+  const sortable = new Draggable.Sortable(
+    document.querySelector('#checklist-container'),
+  );
+
+  console.log('1');
+  
+  sortable.on('sortable:stop', (event) => {
+    reorderArray(event, items);
+  });
+
+  console.log('2');
+
+  items.map((item: ChecklistItem) => $('#checklist-container').append(renderItem(item)));
+  t.sizeTo(document.body);
+
+  console.log('3');
+};
+
+console.log('t', t);
+
+t.render(function () {
+  console.log('yes')
+  renderChecklist();
+}).catch(function (e) {
+  console.log('Error rendering checklist', e);
 });
+
+
 
 // document.getElementById('post').addEventListener('click', function () {
 //   const { card: cardId, board: boardId } = t.getContext();

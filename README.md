@@ -2,7 +2,7 @@
 
 This Power-Up's docs folder is published using Github Pages and can be accessed from this URL: https://emgoto.github.io/better-checklists/ You'll need to put that link in your Trello Power-ups admin page.
 
-## Running locally
+## Watch any js changes
 
 `npm run build -- --watch`
 

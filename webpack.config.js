@@ -1,9 +1,10 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
   entry: {
     index: './src/index.ts',
-    checklist: './src/checklist.ts'
+    checklist: './src/checklist.ts',
+    settings: './src/settings.ts'
   },
   output: {
     filename: '[name].js',
@@ -27,4 +28,4 @@ module.exports = {
       }
     ]
   }
-}
+};
