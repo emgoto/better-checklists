@@ -1,7 +1,8 @@
-/* global TrelloPowerUp, axios, uuidv4 */
+/* global, TrelloPowerUp, axios, uuidv4 */
+import { reorderArray } from './checklist-util';
 declare const Draggable: any;
 
-const t = TrelloPowerUp.iframe();
+const t = TrelloPowerUp.iframe()
 
 const renderItem = (item) => `<div class="item-container draggable-source">
   <div class="checkbox"></div>
@@ -21,7 +22,6 @@ const sortable = new Draggable.Sortable(
 sortable.on('sortable:stop', (event) => {
   console.log(event.oldIndex, event.newIndex);
 });
-
 
 // document.getElementById('post').addEventListener('click', function () {
 //   const { card: cardId, board: boardId } = t.getContext();
