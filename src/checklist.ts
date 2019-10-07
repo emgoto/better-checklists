@@ -6,6 +6,12 @@ declare const TrelloPowerUp: any;
 
 const t = TrelloPowerUp.iframe();
 
+const renderTextArea = () => `
+<div id="new-item-textarea" class="item-textarea-container">
+  <textarea name="message" class="item-textarea" style="margin-bottom: 0px" rows="1"></textarea>
+</div>
+`;
+
 const renderItem = (item: ChecklistItem): string => `<div class="item-container draggable-source">
   <div class="checkbox"></div>
   <div class="item-text">Task with an avatar and due date ${item.text}</div>
@@ -24,6 +30,20 @@ const items = [{
   text: '3'
 }];
 
+function onItemClick(): void {
+  const text = $(this).find('.item-text').html();
+  const textAreaContainer = $(renderTextArea());
+  const textArea = textAreaContainer.find(".item-textarea");
+  textArea.val(text);
+  $(this).replaceWith(textAreaContainer);
+
+  // to make sure the cursor is at the end of the line
+  const temp = textArea.focus().val(); 
+  textArea.val('').val(temp);
+
+  // setup the blur event for this new textarea
+  // editableText.blur(editableTextBlurred); // TODO: not sure what this is for
+}
 
 const renderChecklist = () => {
   const sortable = new Draggable.Sortable(
@@ -42,7 +62,20 @@ const renderChecklist = () => {
   // TODO: every re-render we're just appending more items
   items.map((item: ChecklistItem) => $('#checklist-container').append(renderItem(item)));
   t.sizeTo(document.body);
+
+  document.getElementById('add-an-item').addEventListener('click', function () {
+    $('#add-an-item').attr('hidden');
+    $('#item-textarea-container').removeAttr('hidden');
+  });
+
+  $(".item-container").click(onItemClick);
 };
+
+$(document).ready(function () {
+  $(".item-container").click(onItemClick); //TODO: just for testing
+});
+
+
 
 t.render(function () {
   renderChecklist();

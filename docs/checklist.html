@@ -12,41 +12,19 @@
     <script src="js/checklist.js"></script>
   </head>
   <body>
-    <div id="checklist-container" height="300px"></div>
-
-    <!-- <button id="post">click me</button> -->
-
-    <!-- <div class="item-container">
-      <div class="checkbox"></div>
-      <div class="item-text">Task with an avatar and due date</div>
-        <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
-        <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
-
-      <div class="meatballs"></div>
+    <div id="checklist-container" height="300px" width="300px">
+      <div class="item-container draggable-source">
+        <div class="checkbox"></div>
+        <div class="item-text">Task with an avatar and due date</div>
+          <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
+          <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
+        <div class="meatballs"></div>
+      </div>
     </div>
-
-    <div class="item-container">
-      <div class="checkbox enabled"></div>
-      <div class="item-text">Plain task</div>
-      <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
-      <div class="avatar avatar-button"></div>
-    <div class="meatballs"></div>
-  </div>
-
-    <div class="item-container">
-        <div class="checkbox enabled"></div>
-        <div class="item-text">Task with just an avatar</div>
-        <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/0231e3a1f25296ad07a0f86234495dae/50.png"/>
-      <div class="meatballs"></div>
+    <div id="new-item-textarea" class="item-textarea-container" hidden>
+      <textarea name="message" class="item-textarea" rows="1"></textarea>
     </div>
-
-    <div class="item-container">
-        <div class="checkbox enabled"></div>
-        <div class="item-text">Task with just a due date</div>
-        <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
-        <div class="avatar avatar-button"></div>
-      <div class="meatballs"></div>
-    </div> -->
+    <button id="add-an-item" class="add-an-item" class="mod-bottom">Add an item</button>
   </body>
 </html>
 

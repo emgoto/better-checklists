@@ -105,3 +105,15 @@ body {
     padding: 0 2px;
     margin-left: 4px;
 }
+
+.item-textarea-container {
+    margin-left: 36px;
+}
+
+.item-textarea {
+    height: 40px;
+}
+
+.add-an-item {
+    margin: 0 36px 0;
+}
