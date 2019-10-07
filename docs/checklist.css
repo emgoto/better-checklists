@@ -10,10 +10,22 @@ body {
 }
 
 .item-container:hover {
-    background-color: rgba(9, 30, 66, 0.04);
+    background-color:  	#EBECEE;
 }
 
 .item-container:hover > div {
+    visibility: visible;
+}
+
+.item-container.draggable-source--is-dragging > div, .item-container.draggable-source--is-dragging > img {
+    visibility: hidden;
+}
+
+.item-container.draggable-mirror {
+    background-color:  	#EBECEE;
+}
+
+.item-container.draggable-mirror > div {
     visibility: visible;
 }
 
@@ -56,7 +68,7 @@ body {
 }
 
 .avatar-button:hover {
-    background-color: rgba(9,30,66,.08);
+    background-color: #DADAE2;
 }
 
 .meatballs {
@@ -68,7 +80,7 @@ body {
 }
 
 .meatballs:hover {
-    background-color: rgba(9,30,66,.08);
+    background-color: #DADAE2;
     border-radius: 3px;
 }
 
@@ -83,7 +95,7 @@ body {
 }
 
 .due-date:hover {
-    background-color: rgba(9,30,66,.08);
+    background-color: #DADAE2;
 }
 
 .due-date-icon {

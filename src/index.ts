@@ -1,4 +1,4 @@
-/* global TrelloPowerUp */
+declare const TrelloPowerUp: any;
 
 window.Promise = TrelloPowerUp.Promise;
 
