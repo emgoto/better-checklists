@@ -8,8 +8,8 @@ const t = TrelloPowerUp.iframe();
 
 const renderItem = (item: ChecklistItem): string => `<div class="item-container draggable-source">
   <div class="checkbox"></div>
-  <div class="item-text">Task with an avatar and due date ${item}</div>
-    <div class="due-date">Oct 8 at 12:00 PM<div class="due-date-icon"></div></div>
+  <div class="item-text">Task with an avatar and due date ${item.text}</div>
+    <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
     <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
   <div class="meatballs"></div>
   </div>`;
@@ -28,31 +28,25 @@ const items = [{
 const renderChecklist = () => {
   const sortable = new Draggable.Sortable(
     document.querySelector('#checklist-container'),
+    {
+      mirror: {
+        xAxis: false
+      }
+    }
   );
 
-  console.log('1');
-  
   sortable.on('sortable:stop', (event) => {
     reorderArray(event, items);
   });
 
-  console.log('2');
-
+  // TODO: every re-render we're just appending more items
   items.map((item: ChecklistItem) => $('#checklist-container').append(renderItem(item)));
   t.sizeTo(document.body);
-
-  console.log('3');
 };
 
-console.log('t', t);
-
 t.render(function () {
-  console.log('yes')
   renderChecklist();
-}).catch(function (e) {
-  console.log('Error rendering checklist', e);
 });
-
 
 
 // document.getElementById('post').addEventListener('click', function () {
