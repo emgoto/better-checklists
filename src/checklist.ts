@@ -1,10 +1,32 @@
 /* global axios uuidv4 */
 import { reorderArray } from './checklist-util';
-import { ChecklistItem } from './trello-util';
+import { ChecklistItem, setItems } from './trello-util';
 declare const Draggable: any;
 declare const TrelloPowerUp: any;
 
 const t = TrelloPowerUp.iframe();
+let checklistItems;
+
+console.log('checklistItems', checklistItems);
+
+const updateItemText = (text: string, index?: number): void => {
+  // If we press enter on textarea, we don't want to keep that newline
+  const strippedText = text.replace(/\n$/, "");
+
+  console.log('given itemslist', checklistItems);
+  console.log('and index', index);
+
+  if (index) {
+    checklistItems[index].text = strippedText;
+  } else {
+    checklistItems.push({
+      text: strippedText,
+    });
+  }
+
+  setItems(t, checklistItems);
+  console.log('setting items', checklistItems);
+};
 
 const renderTextArea = (): string =>
   `
@@ -13,24 +35,19 @@ const renderTextArea = (): string =>
       </div>
   `;
 
-const renderItem = (item: ChecklistItem): string => `<div class="item-container draggable-source">
+const renderItem = (item: ChecklistItem): Node => {
+  const domString = `<div class="item-container draggable-source">
   <div class="checkbox"></div>
-  <div class="item-text">Task with an avatar and due date ${item.text}</div>
+  <div class="item-text">${item.text}</div>
     <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
     <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
   <div class="meatballs"></div>
   </div>`;
 
-const items2 = [{
-  text: '1'
-},
-{
-  text: '2'
-},
-{
-  text: '3'
-}];
-
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = domString;
+  return wrapper.firstChild;
+};
 
 function onItemClick(): void {
   // if textarea is already visible, clicking again should do nothing
@@ -40,7 +57,7 @@ function onItemClick(): void {
 
   const text = this.querySelector('.item-text').innerHTML;
 
-  // Hide the other containers
+  // Hide the other elements
   this.querySelector('.item-text').style.display = 'none';
   this.querySelector('.due-date').style.display = 'none';
   this.querySelector('.avatar').style.display = 'none';
@@ -59,14 +76,30 @@ function onItemClick(): void {
     this.querySelector('.item-text').innerHTML = newText;
     this.removeChild(this.querySelector('#existing-item-textarea'));
 
+    // Unhide all the elements
     this.querySelector('.item-text').style.display = '';
     this.querySelector('.due-date').style.display = '';
     this.querySelector('.avatar').style.display = '';
     this.querySelector('.meatballs').style.display = '';
+
+    const index = [...this.parentElement.children].indexOf(this);
+    console.log('got index', index);
+    console.log('this', this);
+    console.log('from ', this.parentElement);
+    updateItemText(newText, index);
   };
+
+  // Execute when user presses enter on the keyboard
+  textarea.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) { // enter key
+      textarea.blur();
+      event.preventDefault();
+    }
+  });
 }
 
-function renderChecklist(): void {
+function initialise(): void {
+  checklistItems = t.arg('items');
   const checklistContainer = document.getElementById('checklist-container');
 
   const sortable = new Draggable.Sortable(
@@ -79,39 +112,56 @@ function renderChecklist(): void {
   );
 
   sortable.on('sortable:stop', (event) => {
-    reorderArray(event, items2);
+    reorderArray(event, checklistItems);
   });
 
-  // TODO: every re-render we're just appending more items
-  items2.map((item: ChecklistItem) => checklistContainer.insertAdjacentHTML('afterend', renderItem(item)));
+  console.log('checklistItems', checklistItems);
 
-  t.sizeTo(document.body);
+  checklistItems.map((item: ChecklistItem) => checklistContainer.appendChild(renderItem(item)));
 
-  document.getElementById('add-an-item').addEventListener('click', function () {
+  // Set up the "add item" button
+  const newItemTextarea = document.getElementById('new-item-textarea');
+  const textarea: HTMLTextAreaElement = newItemTextarea.querySelector('.item-textarea');
+  const newItemButton = document.getElementById('add-an-item');
+  newItemButton.addEventListener('click', function () {
     this.style.display = 'none';
-    const item: HTMLElement = document.getElementById('new-item-textarea');
-    item.removeAttribute('hidden');
+    newItemTextarea.removeAttribute('hidden');
+    textarea.focus();
+  });
+
+  textarea.onblur = (): void => {
+    const newText = textarea.value;
+    newItemTextarea.style.display = "none";
+    textarea.value = '';
+    newItemButton.style.display = '';
+    updateItemText(newText, undefined);
+    checklistContainer.appendChild(renderItem({ text: newText }));
+  };
+
+  // Execute when user presses enter on the keyboard
+  textarea.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) { // enter key
+      textarea.blur();
+      event.preventDefault();
+    }
   });
 
   const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
   Array.from(items).forEach(item => item.onclick = onItemClick);
+
+  return;
 };
 
+console.log('initialise...');
+initialise(); // One-time call
 t.render(function () {
   try {
-    renderChecklist();
+    console.log('render...');
+    return t.sizeTo(document.body);
   } catch (e) {
-    console.log('oh man', e);
+    console.log('Failed to render checklist', e);
   }
-
 });
-
-try {
-  renderChecklist();
-} catch (e) {
-  console.log('oh man', e);
-}
-
 
 // document.getElementById('post').addEventListener('click', function () {
 //   const { card: cardId, board: boardId } = t.getContext();
