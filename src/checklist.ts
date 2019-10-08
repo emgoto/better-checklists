@@ -6,11 +6,12 @@ declare const TrelloPowerUp: any;
 
 const t = TrelloPowerUp.iframe();
 
-const renderTextArea = () => `
-<div id="new-item-textarea" class="item-textarea-container">
-  <textarea name="message" class="item-textarea" style="margin-bottom: 0px" rows="1"></textarea>
-</div>
-`;
+const renderTextArea = (): string =>
+  `
+    <div id="existing-item-textarea" class="item-textarea-container"> 
+      <textarea name="message" class="item-textarea" style="margin-bottom: 0px" rows="1"></textarea>
+      </div>
+  `;
 
 const renderItem = (item: ChecklistItem): string => `<div class="item-container draggable-source">
   <div class="checkbox"></div>
@@ -20,9 +21,9 @@ const renderItem = (item: ChecklistItem): string => `<div class="item-container 
   <div class="meatballs"></div>
   </div>`;
 
-const items = [{
+const items2 = [{
   text: '1'
-}, 
+},
 {
   text: '2'
 },
@@ -30,24 +31,46 @@ const items = [{
   text: '3'
 }];
 
+
 function onItemClick(): void {
-  const text = $(this).find('.item-text').html();
-  const textAreaContainer = $(renderTextArea());
-  const textArea = textAreaContainer.find(".item-textarea");
-  textArea.val(text);
-  $(this).replaceWith(textAreaContainer);
+  // if textarea is already visible, clicking again should do nothing
+  if (this.querySelector('#existing-item-textarea')) {
+    return null;
+  }
+
+  const text = this.querySelector('.item-text').innerHTML;
+
+  // Hide the other containers
+  this.querySelector('.item-text').style.display = 'none';
+  this.querySelector('.due-date').style.display = 'none';
+  this.querySelector('.avatar').style.display = 'none';
+  this.querySelector('.meatballs').style.display = 'none';
+
+  this.querySelector('.checkbox').insertAdjacentHTML('afterend', renderTextArea());
+
+  const textarea = this.querySelector('.item-textarea');
 
   // to make sure the cursor is at the end of the line
-  const temp = textArea.focus().val(); 
-  textArea.val('').val(temp);
+  textarea.focus();
+  textarea.value = text;
 
-  // setup the blur event for this new textarea
-  // editableText.blur(editableTextBlurred); // TODO: not sure what this is for
+  textarea.onblur = (): void => {
+    const newText = this.querySelector('.item-textarea').value;
+    this.querySelector('.item-text').innerHTML = newText;
+    this.removeChild(this.querySelector('#existing-item-textarea'));
+
+    this.querySelector('.item-text').style.display = '';
+    this.querySelector('.due-date').style.display = '';
+    this.querySelector('.avatar').style.display = '';
+    this.querySelector('.meatballs').style.display = '';
+  };
 }
 
-const renderChecklist = () => {
+function renderChecklist(): void {
+  const checklistContainer = document.getElementById('checklist-container');
+
   const sortable = new Draggable.Sortable(
-    document.querySelector('#checklist-container'),
+    checklistContainer,
     {
       mirror: {
         xAxis: false
@@ -56,30 +79,38 @@ const renderChecklist = () => {
   );
 
   sortable.on('sortable:stop', (event) => {
-    reorderArray(event, items);
+    reorderArray(event, items2);
   });
 
   // TODO: every re-render we're just appending more items
-  items.map((item: ChecklistItem) => $('#checklist-container').append(renderItem(item)));
+  items2.map((item: ChecklistItem) => checklistContainer.insertAdjacentHTML('afterend', renderItem(item)));
+
   t.sizeTo(document.body);
 
   document.getElementById('add-an-item').addEventListener('click', function () {
-    $('#add-an-item').attr('hidden');
-    $('#item-textarea-container').removeAttr('hidden');
+    this.style.display = 'none';
+    const item: HTMLElement = document.getElementById('new-item-textarea');
+    item.removeAttribute('hidden');
   });
 
-  $(".item-container").click(onItemClick);
+  const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
+  Array.from(items).forEach(item => item.onclick = onItemClick);
 };
 
-$(document).ready(function () {
-  $(".item-container").click(onItemClick); //TODO: just for testing
-});
-
-
-
 t.render(function () {
-  renderChecklist();
+  try {
+    renderChecklist();
+  } catch (e) {
+    console.log('oh man', e);
+  }
+
 });
+
+try {
+  renderChecklist();
+} catch (e) {
+  console.log('oh man', e);
+}
 
 
 // document.getElementById('post').addEventListener('click', function () {

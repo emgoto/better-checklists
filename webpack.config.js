@@ -4,7 +4,8 @@ module.exports = {
   entry: {
     index: './src/index.ts',
     checklist: './src/checklist.ts',
-    settings: './src/settings.ts'
+    settings: './src/settings.ts',
+    uuid: './src/uuid.js'
   },
   output: {
     filename: '[name].js',

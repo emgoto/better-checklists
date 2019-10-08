@@ -106,7 +106,12 @@ body {
     margin-left: 4px;
 }
 
-.item-textarea-container {
+.item-container > .item-textarea-container{
+    margin-left: 8px;
+    width: 100%;
+}
+
+#new-item-text-area {
     margin-left: 36px;
 }
 
