@@ -78,6 +78,21 @@ function onItemClick(): void {
   });
 }
 
+function onMeatballsClick(event): void {
+  try {
+    t.popup({
+      title: 'Item Actions',
+      mouseEvent: event,
+      items: [{
+        text: 'Delete',
+        callback: () => { },
+      },]
+    });
+  } catch (e) {
+    console.log('pop up failed', e);
+  }
+}
+
 const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
   <div class="checkbox"></div>
@@ -152,6 +167,9 @@ function initialise(): void {
 
   const items = document.querySelectorAll('.item-text') as NodeListOf<HTMLElement>;
   Array.from(items).forEach(item => item.onclick = onItemClick);
+
+  const items2 = document.querySelectorAll('.meatballs') as NodeListOf<HTMLElement>;
+  Array.from(items2).forEach(item => item.onclick = onMeatballsClick);
 
   return;
 };
