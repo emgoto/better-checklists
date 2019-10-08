@@ -12,6 +12,10 @@ body {
     background-color:  	#EBECEE;
 }
 
+.item-container.no-hover:hover {
+    background-color: transparent;
+}
+
 .item-container:hover > div {
     visibility: visible;
 }
@@ -51,6 +55,11 @@ body {
 .item-text {
     flex-grow: 2;
     margin: 0 8px;
+    padding: 8px 0;
+}
+
+.item-text:hover {
+    cursor: pointer;
 }
 
 .avatar {
@@ -108,7 +117,7 @@ body {
 
 .item-container > .item-textarea-container{
     margin-left: 8px;
-    width: 100%;
+    flex-grow: 2;
 }
 
 #new-item-text-area {

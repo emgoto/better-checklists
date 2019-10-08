@@ -7,25 +7,18 @@ declare const TrelloPowerUp: any;
 const t = TrelloPowerUp.iframe();
 let checklistItems;
 
-console.log('checklistItems', checklistItems);
-
 const updateItemText = (text: string, index?: number): void => {
-  // If we press enter on textarea, we don't want to keep that newline
-  const strippedText = text.replace(/\n$/, "");
-
-  console.log('given itemslist', checklistItems);
-  console.log('and index', index);
-
   if (index) {
-    checklistItems[index].text = strippedText;
+    checklistItems[index].text = text;
   } else {
     checklistItems.push({
-      text: strippedText,
+      text,
     });
   }
 
+  console.log('checklistitems', checklistItems);
+
   setItems(t, checklistItems);
-  console.log('setting items', checklistItems);
 };
 
 const renderTextArea = (): string =>
@@ -34,6 +27,56 @@ const renderTextArea = (): string =>
       <textarea name="message" class="item-textarea" style="margin-bottom: 0px" rows="1"></textarea>
       </div>
   `;
+
+
+function onItemClick(): void {
+  // if textarea is already visible, clicking again should do nothing
+  if (this.parentElement.querySelector('#existing-item-textarea')) {
+    return null;
+  }
+
+  const text = this.parentElement.querySelector('.item-text').innerHTML;
+
+  // Hide the other elements
+  this.parentElement.querySelector('.item-text').style.display = 'none';
+  this.parentElement.querySelector('.due-date').style.display = 'none';
+  this.parentElement.querySelector('.avatar').style.display = 'none';
+  this.parentElement.querySelector('.meatballs').style.display = 'none';
+  this.parentElement.classList.add('no-hover');
+
+  this.parentElement.querySelector('.checkbox').insertAdjacentHTML('afterend', renderTextArea());
+
+  const textarea = this.parentElement.querySelector('.item-textarea');
+
+  // to make sure the cursor is at the end of the line
+  textarea.focus();
+  textarea.value = text;
+
+  textarea.onblur = (): void => {
+    const newText = this.parentElement.querySelector('.item-textarea').value;
+    const strippedText = newText.replace('\n', '');
+    this.parentElement.querySelector('.item-text').innerHTML = strippedText;
+    this.parentElement.removeChild(this.parentElement.querySelector('#existing-item-textarea'));
+
+    // Unhide all the elements
+    this.parentElement.querySelector('.item-text').style.display = '';
+    this.parentElement.querySelector('.due-date').style.display = '';
+    this.parentElement.querySelector('.avatar').style.display = '';
+    this.parentElement.querySelector('.meatballs').style.display = '';
+    this.parentElement.classList.remove('no-hover');
+    const index = [...this.parentElement.parentElement.children].indexOf(this.parentElement);
+
+    updateItemText(strippedText, index);
+  };
+
+  // Execute when user presses enter on the keyboard
+  textarea.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) { // enter key
+      textarea.blur();
+      event.preventDefault();
+    }
+  });
+}
 
 const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
@@ -49,54 +92,15 @@ const renderItem = (item: ChecklistItem): Node => {
   return wrapper.firstChild;
 };
 
-function onItemClick(): void {
-  // if textarea is already visible, clicking again should do nothing
-  if (this.querySelector('#existing-item-textarea')) {
-    return null;
-  }
+const addItem = (text: string): void => {
+  const checklistContainer = document.getElementById('checklist-container');
+  const item = renderItem({ text });
+  checklistContainer.appendChild(item);
 
-  const text = this.querySelector('.item-text').innerHTML;
-
-  // Hide the other elements
-  this.querySelector('.item-text').style.display = 'none';
-  this.querySelector('.due-date').style.display = 'none';
-  this.querySelector('.avatar').style.display = 'none';
-  this.querySelector('.meatballs').style.display = 'none';
-
-  this.querySelector('.checkbox').insertAdjacentHTML('afterend', renderTextArea());
-
-  const textarea = this.querySelector('.item-textarea');
-
-  // to make sure the cursor is at the end of the line
-  textarea.focus();
-  textarea.value = text;
-
-  textarea.onblur = (): void => {
-    const newText = this.querySelector('.item-textarea').value;
-    this.querySelector('.item-text').innerHTML = newText;
-    this.removeChild(this.querySelector('#existing-item-textarea'));
-
-    // Unhide all the elements
-    this.querySelector('.item-text').style.display = '';
-    this.querySelector('.due-date').style.display = '';
-    this.querySelector('.avatar').style.display = '';
-    this.querySelector('.meatballs').style.display = '';
-
-    const index = [...this.parentElement.children].indexOf(this);
-    console.log('got index', index);
-    console.log('this', this);
-    console.log('from ', this.parentElement);
-    updateItemText(newText, index);
-  };
-
-  // Execute when user presses enter on the keyboard
-  textarea.addEventListener("keyup", function (event) {
-    if (event.keyCode === 13) { // enter key
-      textarea.blur();
-      event.preventDefault();
-    }
-  });
-}
+  const newItems = checklistContainer.querySelectorAll('.item-text') as NodeListOf<HTMLElement>;
+  const lastIndex = newItems.length - 1;
+  newItems.item(lastIndex).onclick = onItemClick;
+};
 
 function initialise(): void {
   checklistItems = t.arg('items');
@@ -115,8 +119,6 @@ function initialise(): void {
     reorderArray(event, checklistItems);
   });
 
-  console.log('checklistItems', checklistItems);
-
   checklistItems.map((item: ChecklistItem) => checklistContainer.appendChild(renderItem(item)));
 
   // Set up the "add item" button
@@ -125,17 +127,19 @@ function initialise(): void {
   const newItemButton = document.getElementById('add-an-item');
   newItemButton.addEventListener('click', function () {
     this.style.display = 'none';
-    newItemTextarea.removeAttribute('hidden');
+    newItemTextarea.style.display = '';
     textarea.focus();
   });
 
   textarea.onblur = (): void => {
     const newText = textarea.value;
+    // If we press enter on textarea, we don't want to keep that newline
+    const strippedText = newText.replace('\n', '');
     newItemTextarea.style.display = "none";
     textarea.value = '';
     newItemButton.style.display = '';
-    updateItemText(newText, undefined);
-    checklistContainer.appendChild(renderItem({ text: newText }));
+    updateItemText(strippedText, undefined);
+    addItem(strippedText);
   };
 
   // Execute when user presses enter on the keyboard
@@ -146,17 +150,15 @@ function initialise(): void {
     }
   });
 
-  const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
+  const items = document.querySelectorAll('.item-text') as NodeListOf<HTMLElement>;
   Array.from(items).forEach(item => item.onclick = onItemClick);
 
   return;
 };
 
-console.log('initialise...');
 initialise(); // One-time call
 t.render(function () {
   try {
-    console.log('render...');
     return t.sizeTo(document.body);
   } catch (e) {
     console.log('Failed to render checklist', e);
