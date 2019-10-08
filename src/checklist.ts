@@ -16,7 +16,16 @@ const updateItemText = (text: string, index?: number): void => {
     });
   }
 
-  console.log('checklistitems', checklistItems);
+  setItems(t, checklistItems);
+};
+
+const deleteItem = (index: number): void => {
+  const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
+  const itemToDelete = items[index];
+  const checklistContainer = document.getElementById('checklist-container');
+  checklistContainer.removeChild(itemToDelete);
+
+  checklistItems.splice(index, 1);
 
   setItems(t, checklistItems);
 };
@@ -79,13 +88,18 @@ function onItemClick(): void {
 }
 
 function onMeatballsClick(event): void {
+  const item = event.target.parentElement;
+  const index = [...item.parentElement.children].indexOf(item);
   try {
     t.popup({
       title: 'Item Actions',
       mouseEvent: event,
       items: [{
         text: 'Delete',
-        callback: () => { },
+        callback: (callbackT): void => {
+          deleteItem(index);
+          callbackT.closePopup();
+        },
       },]
     });
   } catch (e) {
@@ -97,8 +111,8 @@ const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
   <div class="checkbox"></div>
   <div class="item-text">${item.text}</div>
-    <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
-    <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
+  <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
+  <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
   <div class="meatballs"></div>
   </div>`;
 
@@ -112,9 +126,14 @@ const addItem = (text: string): void => {
   const item = renderItem({ text });
   checklistContainer.appendChild(item);
 
-  const newItems = checklistContainer.querySelectorAll('.item-text') as NodeListOf<HTMLElement>;
+  const newItems = checklistContainer.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
   const lastIndex = newItems.length - 1;
-  newItems.item(lastIndex).onclick = onItemClick;
+  const lastItem = newItems.item(lastIndex);
+
+  const itemText = lastItem.querySelector('.item-text') as HTMLElement;
+  itemText.onclick = onItemClick;
+  const meatballs = lastItem.querySelector('.meatballs') as HTMLElement;
+  meatballs.onclick = onMeatballsClick;
 };
 
 function initialise(): void {
@@ -165,11 +184,13 @@ function initialise(): void {
     }
   });
 
-  const items = document.querySelectorAll('.item-text') as NodeListOf<HTMLElement>;
-  Array.from(items).forEach(item => item.onclick = onItemClick);
-
-  const items2 = document.querySelectorAll('.meatballs') as NodeListOf<HTMLElement>;
-  Array.from(items2).forEach(item => item.onclick = onMeatballsClick);
+  const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
+  Array.from(items).forEach((item) => {
+    const text = item.querySelector('.item-text') as HTMLElement;
+    text.onclick = onItemClick;
+    const meatballs = item.querySelector('.meatballs') as HTMLElement;
+    meatballs.onclick = onMeatballsClick;
+  });
 
   return;
 };
