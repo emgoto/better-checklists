@@ -1,6 +1,7 @@
 /* global axios uuidv4 */
 import { reorderArray } from './checklist-util';
-import { ChecklistItem, setItems } from './trello-util';
+import { ChecklistItem, setItems, getItems } from './trello-util';
+import { stringToNode } from './checklist-util';
 declare const Draggable: any;
 declare const TrelloPowerUp: any;
 
@@ -19,18 +20,15 @@ const updateItemText = (text: string, index?: number): void => {
   setItems(t, checklistItems);
 };
 
-const updateDueDate = (index: number) => (dueDate: Date): void => {
-  checklistItems[index].dueDate = dueDate;
+const updateItemDueDate = (dueDate: number, index: number): void => {
+  const items = document.querySelectorAll('.due-date') as NodeListOf<HTMLElement>;
+  const item = items[index];
+  const oldChild = item.childNodes[0];
+  const domString = `<div class="due-date-text">${dueDate}<div class="due-date-icon"></div></div>`;
 
-  // TODO: update the date in the dom
-
-  setItems(t, checklistItems);
-};
-
-const removeDueDate = (index: number) => (): void => {
-  checklistItems[index].dueTime = undefined;
-
-  setItems(t, checklistItems);
+  // TODO: convert duedate to readable text
+  item.replaceChild(stringToNode(domString), oldChild);
+  item.classList.remove('invisible');
 };
 
 const deleteItem = (index: number): void => {
@@ -40,6 +38,8 @@ const deleteItem = (index: number): void => {
   checklistContainer.removeChild(itemToDelete);
 
   checklistItems.splice(index, 1);
+
+  console.log('deleted', checklistItems);
 
   setItems(t, checklistItems);
 };
@@ -122,14 +122,14 @@ function onMeatballsClick(event): void {
 }
 
 function onCalendarClick(event): void {
-  const item = event.target.parentElement;
+  const item = event.target.parentElement.parentElement;
   const index = [...item.parentElement.children].indexOf(item);
 
   t.popup({
     title: 'Change due date',
     mouseEvent: event,
     url: './due-date.html',
-    args: { onSave: updateDueDate(index), onRemove: removeDueDate(index) },
+    args: { index, checklistItems },
     height: 278 // initial height, can be changed later
   });
 }
@@ -156,9 +156,7 @@ const renderItem = (item: ChecklistItem): Node => {
   <div class="meatballs"></div>
   </div>`;
 
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = domString;
-  return wrapper.firstChild;
+  return stringToNode(domString);
 };
 
 const addItem = (text: string): void => {
@@ -230,6 +228,27 @@ function initialise(): void {
 initialise(); // One-time call
 t.render(function () {
   try {
+    console.log('re-render...');
+    // If a re-render is caused by the duedate, assignee or notificationTime changing, we'll need to do something about it.
+    getItems(t).then((newItems) => {
+      // If the length is the same, it's not something we need to worry about
+      if (newItems.length === checklistItems.length) {
+        newItems.forEach((newItem, index) => {
+          if (newItem.assigneeUsername !== checklistItems[index].assigneeUsername) {
+
+          }
+          if (newItem.dueDate !== checklistItems[index].dueDate) {
+            updateItemDueDate(newItem.dueDate, index);
+            checklistItems[index].dueDate = newItem.dueDate;
+            setItems(t, checklistItems);
+          }
+          if (newItem.notificationTime !== checklistItems[index].notificationTime) {
+
+          }
+        });
+      }
+    });
+
     return t.sizeTo(document.body);
   } catch (e) {
     console.log('Failed to render checklist', e);

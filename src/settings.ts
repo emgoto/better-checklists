@@ -4,27 +4,25 @@ const t = TrelloPowerUp.iframe();
 
 const addEventListeners = (): void => {
   // Shows empty list after user presses enable
-  document.getElementById('enable-btn').addEventListener('click', function(){
+  document.getElementById('enable-btn').addEventListener('click', function () {
     return setItems(t, [])
-      .then(function(){
+      .then(function () {
         t.closePopup();
-      }).catch(function(e){
+      }).catch(function (e) {
         console.log('failed to setItems', e);
       });
   });
 
   // Removes list when user presses delete button
-  document.getElementById('remove-btn').addEventListener('click', function(){
+  document.getElementById('remove-btn').addEventListener('click', function () {
     return setItems(t, null)
-      .then(function(){
+      .then(function () {
         t.closePopup();
-      }).catch(function(e){
+      }).catch(function (e) {
         console.log('failed to setItems', e);
       });
   });
 };
-
-console.log('yes, ', t);
 
 t.render(function () {
   getIsChecklistEnabled(t)
@@ -32,6 +30,8 @@ t.render(function () {
       addEventListeners();
       if (enabled) {
         document.getElementById('remove-btn').classList.remove('u-hidden');
+      } else {
+        document.getElementById('enable-btn').classList.remove('u-hidden');
       }
     }).catch(function (e) {
       console.log('Error rendering settings', e);

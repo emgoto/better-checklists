@@ -11,3 +11,9 @@ export const reorderArray = (event, originalArray) => {
 
   return reorderedItems;
 };
+
+export const stringToNode = (domString: string): Node => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = domString;
+  return wrapper.firstChild;
+};
