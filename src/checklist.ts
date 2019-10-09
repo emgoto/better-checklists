@@ -19,6 +19,20 @@ const updateItemText = (text: string, index?: number): void => {
   setItems(t, checklistItems);
 };
 
+const updateDueDate = (index: number) => (dueDate: Date): void => {
+  checklistItems[index].dueDate = dueDate;
+
+  // TODO: update the date in the dom
+
+  setItems(t, checklistItems);
+};
+
+const removeDueDate = (index: number) => (): void => {
+  checklistItems[index].dueTime = undefined;
+
+  setItems(t, checklistItems);
+};
+
 const deleteItem = (index: number): void => {
   const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
   const itemToDelete = items[index];
@@ -107,11 +121,37 @@ function onMeatballsClick(event): void {
   }
 }
 
+function onCalendarClick(event): void {
+  const item = event.target.parentElement;
+  const index = [...item.parentElement.children].indexOf(item);
+
+  t.popup({
+    title: 'Change due date',
+    mouseEvent: event,
+    url: './due-date.html',
+    args: { onSave: updateDueDate(index), onRemove: removeDueDate(index) },
+    height: 278 // initial height, can be changed later
+  });
+}
+
+function addEventListeners(item: HTMLElement): void {
+  const itemText = item.querySelector('.item-text') as HTMLElement;
+  itemText.onclick = onItemClick;
+
+  const meatballs = item.querySelector('.meatballs') as HTMLElement;
+  meatballs.onclick = onMeatballsClick;
+
+  const calendar = item.querySelector('.due-date') as HTMLElement;
+  calendar.onclick = onCalendarClick;
+}
+
 const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
   <div class="checkbox"></div>
   <div class="item-text">${item.text}</div>
-  <div class="due-date">Oct 8<div class="due-date-icon"></div></div>
+  <div class="due-date ${item.dueDate ? '' : 'invisible'}">
+    ${item.dueDate ? '<div class="due-date-text">8 Oct<div class="due-date-icon"></div></div>' : '<div class="calendar-icon"></div>'}
+  </div>
   <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
   <div class="meatballs"></div>
   </div>`;
@@ -130,10 +170,7 @@ const addItem = (text: string): void => {
   const lastIndex = newItems.length - 1;
   const lastItem = newItems.item(lastIndex);
 
-  const itemText = lastItem.querySelector('.item-text') as HTMLElement;
-  itemText.onclick = onItemClick;
-  const meatballs = lastItem.querySelector('.meatballs') as HTMLElement;
-  meatballs.onclick = onMeatballsClick;
+  addEventListeners(lastItem);
 };
 
 function initialise(): void {
@@ -185,12 +222,7 @@ function initialise(): void {
   });
 
   const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
-  Array.from(items).forEach((item) => {
-    const text = item.querySelector('.item-text') as HTMLElement;
-    text.onclick = onItemClick;
-    const meatballs = item.querySelector('.meatballs') as HTMLElement;
-    meatballs.onclick = onMeatballsClick;
-  });
+  Array.from(items).forEach((item) => addEventListeners(item));
 
   return;
 };

@@ -5,7 +5,7 @@ module.exports = {
     index: './src/index.ts',
     checklist: './src/checklist.ts',
     settings: './src/settings.ts',
-    uuid: './src/uuid.js'
+    dueDate: './src/due-date.ts',
   },
   output: {
     filename: '[name].js',

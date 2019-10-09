@@ -34,6 +34,7 @@ body {
 }
 
 .checkbox {
+    min-width: 18px;
     width: 18px;
     height: 18px;
     border-radius: 2px;
@@ -85,6 +86,7 @@ body {
     margin-right: 4px;
     background: transparent url(img/meatballs.svg) 6px 2px/20px 20px no-repeat;
     width: 32px;
+    min-width: 32px;
     height: 24px;
 }
 
@@ -96,15 +98,31 @@ body {
 .due-date {
     border-radius: 3px;
     background-color: rgba(9,30,66,.04);
+    color: #172b4d;
+    display: flex;
+    min-width: 32px;
+    min-height: 24px;
+}
+
+.due-date.invisible {
+    visibility:hidden;
+}
+
+.due-date > .due-date-text {
     padding: 4px 8px;
     padding-right: 0;
     padding-left: 10px;
-    color: #172b4d;
-    display: flex;
+}
+
+.due-date > .calendar-icon {
+    background: transparent url(img/calendar-icon.svg) 8px 4px/16px 16px no-repeat;
+    width: 32px;
+    height: 24px;
 }
 
 .due-date:hover {
     background-color: #DADAE2;
+    cursor: pointer;
 }
 
 .due-date-icon {

@@ -3,7 +3,7 @@ export type ChecklistItem = {
     isComplete?: boolean;
     assigneeUsername?: string;
     avatarHash?: string;// last known avatarHash //TODO: need to re-get it in case it has changed
-    dueTime?: number;
+    dueDate?: number;
     notificationTime?: number;
 };
 
