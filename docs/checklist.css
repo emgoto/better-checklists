@@ -109,9 +109,7 @@ body {
 }
 
 .due-date > .due-date-text {
-    padding: 4px 8px;
-    padding-right: 0;
-    padding-left: 10px;
+    padding: 4px;
 }
 
 .due-date > .calendar-icon {
@@ -125,13 +123,13 @@ body {
     cursor: pointer;
 }
 
-.due-date-icon {
+/* .due-date-icon {
     background: transparent url(img/down.svg) 0px 0px/20px 20px no-repeat;
     width: 20px;
     height: 20px;
     padding: 0 2px;
     margin-left: 4px;
-}
+} */
 
 .item-container > .item-textarea-container{
     margin-left: 8px;

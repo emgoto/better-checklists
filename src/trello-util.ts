@@ -4,6 +4,7 @@ export type ChecklistItem = {
     assigneeUsername?: string;
     avatarHash?: string;// last known avatarHash //TODO: need to re-get it in case it has changed
     dueDate?: number;
+    dueDateFriendly?: string; // Date in human readbable format e.g. 1 Jan 12:00pm
     notificationTime?: number;
 };
 

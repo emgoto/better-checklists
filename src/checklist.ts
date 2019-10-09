@@ -20,15 +20,19 @@ const updateItemText = (text: string, index?: number): void => {
   setItems(t, checklistItems);
 };
 
-const updateItemDueDate = (dueDate: number, index: number): void => {
+const updateItemDueDate = (index: number, dueDateFriendly?: string, ): void => {
   const items = document.querySelectorAll('.due-date') as NodeListOf<HTMLElement>;
   const item = items[index];
-  const oldChild = item.childNodes[0];
-  const domString = `<div class="due-date-text">${dueDate}<div class="due-date-icon"></div></div>`;
-
-  // TODO: convert duedate to readable text
-  item.replaceChild(stringToNode(domString), oldChild);
-  item.classList.remove('invisible');
+  let domString;
+  if (dueDateFriendly) {
+    domString = `<div class="due-date-text">${dueDateFriendly}</div></div>`;
+    item.classList.remove('invisible');
+  } else {
+    domString = '<div class="calendar-icon"></div>';
+    item.classList.add('invisible');
+  }
+  item.innerHTML = "";
+  item.appendChild(stringToNode(domString));
 };
 
 const deleteItem = (index: number): void => {
@@ -38,8 +42,6 @@ const deleteItem = (index: number): void => {
   checklistContainer.removeChild(itemToDelete);
 
   checklistItems.splice(index, 1);
-
-  console.log('deleted', checklistItems);
 
   setItems(t, checklistItems);
 };
@@ -149,8 +151,8 @@ const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
   <div class="checkbox"></div>
   <div class="item-text">${item.text}</div>
-  <div class="due-date ${item.dueDate ? '' : 'invisible'}">
-    ${item.dueDate ? '<div class="due-date-text">8 Oct<div class="due-date-icon"></div></div>' : '<div class="calendar-icon"></div>'}
+  <div class="due-date ${item.dueDateFriendly ? '' : 'invisible'}">
+    ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon"></div>'}
   </div>
   <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
   <div class="meatballs"></div>
@@ -231,22 +233,22 @@ t.render(function () {
     console.log('re-render...');
     // If a re-render is caused by the duedate, assignee or notificationTime changing, we'll need to do something about it.
     getItems(t).then((newItems) => {
-      // If the length is the same, it's not something we need to worry about
+      // If the length is not the same, it's not something we need to worry about
       if (newItems.length === checklistItems.length) {
         newItems.forEach((newItem, index) => {
           if (newItem.assigneeUsername !== checklistItems[index].assigneeUsername) {
 
           }
-          if (newItem.dueDate !== checklistItems[index].dueDate) {
-            updateItemDueDate(newItem.dueDate, index);
-            checklistItems[index].dueDate = newItem.dueDate;
-            setItems(t, checklistItems);
+          if (newItem.dueDateFriendly !== checklistItems[index].dueDateFriendly) {
+            updateItemDueDate(index, newItem.dueDateFriendly);
           }
           if (newItem.notificationTime !== checklistItems[index].notificationTime) {
 
           }
         });
       }
+      checklistItems = newItems;
+      setItems(t, newItems);
     });
 
     return t.sizeTo(document.body);

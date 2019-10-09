@@ -15,7 +15,7 @@ const resize = function (): void {
   t.sizeTo('.dpicker-widget');
 };
 
-// To change the names of the buttons
+// To change the names of the buttons (as they were too long)
 const i18n = {
   previousMonth: 'Prev',
   nextMonth: 'Next',
@@ -25,12 +25,19 @@ const i18n = {
 };
 
 t.render(function () {
+  const dueDate = checklistItems[index].dueDate;
+  if (dueDate) {
+    document.getElementById('remove-btn').classList.remove('u-hidden');
+  }
+
   if (!picker) {
+    const defaultDate = moment.unix(dueDate).toDate() || now;
+
     picker = new Pikaday({
       bound: false,
       format: 'MM/DD/YYYY',
-      defaultDate: now,
-      setDefaultDate: now,
+      defaultDate,
+      setDefaultDate: true,
       container: document.getElementById('datepicker'),
       field: document.getElementById('date-input'),
       i18n,
@@ -41,15 +48,23 @@ t.render(function () {
   }
 });
 
+document.getElementById('time-input').onblur = (): void => {
+  const timeInput = document.getElementById('time-input') as HTMLTextAreaElement;
+  if (!moment(timeInput.value, TIME_FORMAT).isValid()) {
+    timeInput.value = '12:00 PM';
+  }
+};
+
 document.getElementById('save-btn').addEventListener('click', function () {
-  // const displayDate = picker.getMoment().format('MM/DD/YYYY');
   const timeInput = document.getElementById('time-input') as HTMLTextAreaElement;
   let timeMoment = moment(timeInput.value, TIME_FORMAT);
   if (!timeMoment.isValid()) {
     timeMoment = moment('12:00 PM', TIME_FORMAT);
   }
   const unixTime = picker.getMoment().hour(timeMoment.hour()).minute(timeMoment.minute()).unix();
+  const displayDate = picker.getMoment().hour(timeMoment.hour()).minute(timeMoment.minute()).format('D MMM h:mm A');
   checklistItems[index].dueDate = unixTime;
+  checklistItems[index].dueDateFriendly = displayDate;
 
   setItems(t, checklistItems).then(() => {
     t.closePopup();
@@ -58,8 +73,9 @@ document.getElementById('save-btn').addEventListener('click', function () {
 
 document.getElementById('remove-btn').addEventListener('click', function () {
   checklistItems[index].dueDate = undefined;
+  checklistItems[index].dueDateFriendly = undefined;
+
   setItems(t, checklistItems).then(() => {
     t.closePopup();
   });
-  t.closePopup();
 });
