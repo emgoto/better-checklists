@@ -77,8 +77,10 @@ body {
     height: 32px;
     width: 32px;
     border-radius: 25em;
-    background-color: rgba(9,30,66,.04);
-    visibility: hidden;
+}
+
+.avatar.invisible {
+    visibility:hidden;
 }
 
 .avatar > img {
@@ -89,7 +91,7 @@ body {
 }
 
 .avatar-button {
-    background: transparent url(img/add-icon.svg) 6px 6px/20px 20px no-repeat;
+    background: rgba(9,30,66,.04) url(img/add-icon.svg) 6px 6px/20px 20px no-repeat;
     visibility: hidden;
     height: 32px;
     width: 32px;

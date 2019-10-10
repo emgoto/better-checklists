@@ -10,7 +10,6 @@ declare const Trello: any;
 const t = TrelloPowerUp.iframe();
 let checklistItems;
 let boardMembers;
-const token = getToken(t);
 
 const updateItemText = (text: string, index?: number): void => {
   if (index !== undefined) {
@@ -49,8 +48,10 @@ const setMember = async (index: number, member?: Member): Promise<any> => {
   const item = items[index];
   let domString;
   if (member) {
+    item.classList.remove('invisible');
     domString = `<img src="https://trello-avatars.s3.amazonaws.com/${member.avatarHash}/50.png" title="${fullName} (${username})"/>`;
   } else {
+    item.classList.add('invisible');
     domString = '<div class="avatar-button" title="Assign member"></div>';
   }
   item.innerHTML = "";
@@ -203,21 +204,27 @@ function onAvatarClickWithToken(event): void {
 }
 
 function onAvatarClick(event): void {
-  token.then((token) => {
-    if (!token) {
-
-      // TODO: insert modal here instead of authorizing straight away
-      Trello.authorize({
-        type: "popup",
-        name: "Checklist+",
-        expiration: "never",
-        success: () => {
-          setToken(t, Trello.token()).then(() => {
-            this.onclick = onAvatarClickWithToken;
-            boardMembers = getBoardMembers(t, Trello.token());
+  getToken(t).then((maybeToken) => {
+    if (!maybeToken) {
+      t.popup({
+        type: 'confirm',
+        title: 'Authorize Checklist+',
+        mouseEvent: event,
+        message: 'To enable assigning board members to tasks, we require you to authorize with Checklist+.',
+        confirmText: 'Authorize',
+        onConfirm: () => {
+          Trello.authorize({
+            type: "popup",
+            name: "Checklist+",
+            expiration: "never",
+            success: () => {
+              setToken(t, Trello.token());
+              boardMembers = getBoardMembers(t, Trello.token());
+              this.onclick = onAvatarClickWithToken;
+            },
+            error: () => { },
           });
         },
-        error: () => { },
       });
     } else {
       onAvatarClickWithToken(event);
@@ -246,7 +253,7 @@ const renderItem = (item: ChecklistItem): Node => {
     <div class="due-date ${item.dueDateFriendly ? '' : 'invisible'}">
       ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon" title="Set due date"></div>'}
     </div>
-    <div class="avatar">
+    <div class="avatar ${item.avatarHash ? '' : 'invisible'}">
       ${item.avatarHash ? `<img src="https://trello-avatars.s3.amazonaws.com/${item.avatarHash}/50.png" title="${item.fullName} (${item.username})"/>` : '<div class="avatar-button" title="Assign member"></div>'}
     </div>
     <div class="meatballs"></div>
@@ -270,7 +277,7 @@ const addItem = (text: string): void => {
 function initialise(): void {
   checklistItems = t.arg('items');
   const checklistContainer = document.getElementById('checklist-container');
-  boardMembers = token.then((token) => {
+  boardMembers = getToken(t).then((token) => {
     if (token) {
       return getBoardMembers(t, token);
     }
@@ -332,7 +339,7 @@ t.render(function () {
   try {
     // If a re-render is caused by the duedate or notificationTime changing, we'll need to do something about it.
     getItems(t).then((newItems) => {
-      // If the length is not the same, it's not something we need to worry about
+      // If the length is not the same, we would have handled that case elsewhere
       if (newItems.length === checklistItems.length) {
         newItems.forEach((newItem, index) => {
           if (newItem.dueDateFriendly !== checklistItems[index].dueDateFriendly) {

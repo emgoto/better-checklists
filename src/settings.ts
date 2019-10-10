@@ -1,6 +1,5 @@
-import { getIsChecklistEnabled, setItems, getToken, setToken } from './trello-util';
+import { getIsChecklistEnabled, setItems, getToken } from './trello-util';
 declare const TrelloPowerUp: any;
-declare const Trello: any;
 const t = TrelloPowerUp.iframe();
 
 document.getElementById('enable-btn').addEventListener('click', function () {
@@ -21,21 +20,6 @@ document.getElementById('remove-btn').addEventListener('click', function () {
       console.log('failed to setItems', e);
     });
 });
-
-// // Shows authorization pop-up when user presses authorize button
-// document.getElementById('authorize-btn').addEventListener('click', function () {
-//   Trello.authorize({
-//     type: "popup",
-//     name: "Checklist+",
-//     expiration: "never",
-//     success: () => {
-//       setToken(t, Trello.token()).then(() => {
-//         document.getElementById('authorization').classList.add('u-hidden');
-//       });
-//     },
-//     error: () => { },
-//   });
-// });
 
 t.render(function () {
   getIsChecklistEnabled(t)
