@@ -20,6 +20,10 @@ body {
     visibility: visible;
 }
 
+.item-container:hover > .avatar > .avatar-button {
+    visibility: visible;
+}
+
 .item-container.draggable-source--is-dragging > div, .item-container.draggable-source--is-dragging > img {
     visibility: hidden;
 }
@@ -64,17 +68,25 @@ body {
 }
 
 .avatar {
+    margin: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    height: 32px;
+}
+
+.avatar > img {
+    object-fit: cover;
     height: 32px;
     width: 32px;
     border-radius: 25em;
-    object-fit: cover;
-    margin: 4px;
-    background-color: transparent;
 }
 
 .avatar-button {
-    background: rgba(9,30,66,.04) url(img/add-icon.svg) 6px 6px/20px 20px no-repeat;
+    background: transparent url(img/add-icon.svg) 6px 6px/20px 20px no-repeat;
     visibility: hidden;
+    height: 32px;
+    width: 32px;
+    border-radius: 25em;
 }
 
 .avatar-button:hover {
@@ -122,14 +134,6 @@ body {
     background-color: #DADAE2;
     cursor: pointer;
 }
-
-/* .due-date-icon {
-    background: transparent url(img/down.svg) 0px 0px/20px 20px no-repeat;
-    width: 20px;
-    height: 20px;
-    padding: 0 2px;
-    margin-left: 4px;
-} */
 
 .item-container > .item-textarea-container{
     margin-left: 8px;

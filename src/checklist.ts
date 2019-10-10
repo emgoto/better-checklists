@@ -2,14 +2,16 @@
 import { reorderArray } from './checklist-util';
 import { ChecklistItem, setItems, getItems } from './trello-util';
 import { stringToNode } from './checklist-util';
+import { getBoardMembers, Member } from './member';
 declare const Draggable: any;
 declare const TrelloPowerUp: any;
 
 const t = TrelloPowerUp.iframe();
 let checklistItems;
+let boardMembers;
 
 const updateItemText = (text: string, index?: number): void => {
-  if (index) {
+  if (index !== undefined) {
     checklistItems[index].text = text;
   } else {
     checklistItems.push({
@@ -20,7 +22,7 @@ const updateItemText = (text: string, index?: number): void => {
   setItems(t, checklistItems);
 };
 
-const updateItemDueDate = (index: number, dueDateFriendly?: string, ): void => {
+const updateItemDueDate = (index: number, dueDateFriendly?: string): void => {
   const items = document.querySelectorAll('.due-date') as NodeListOf<HTMLElement>;
   const item = items[index];
   let domString;
@@ -35,15 +37,34 @@ const updateItemDueDate = (index: number, dueDateFriendly?: string, ): void => {
   item.appendChild(stringToNode(domString));
 };
 
-const deleteItem = (index: number): void => {
+const setMember = async (index: number, member?: Member): Promise<any> => {
+  const { username = undefined, fullName = undefined, avatarHash = undefined } = member || {};
+  checklistItems[index].username = username;
+  checklistItems[index].fullName = fullName;
+  checklistItems[index].avatarHash = avatarHash;
+
+  const items = document.querySelectorAll('.avatar') as NodeListOf<HTMLElement>;
+  const item = items[index];
+  let domString;
+  if (member) {
+    domString = `<img src="https://trello-avatars.s3.amazonaws.com/${member.avatarHash}/50.png" title="${fullName} (${username})"/>`;
+  } else {
+    domString = '<div class="avatar-button"></div>';
+  }
+  item.innerHTML = "";
+  item.appendChild(stringToNode(domString));
+
+  return setItems(t, checklistItems);
+};
+
+const deleteItem = async (index: number): Promise<any> => {
   const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
   const itemToDelete = items[index];
   const checklistContainer = document.getElementById('checklist-container');
   checklistContainer.removeChild(itemToDelete);
 
   checklistItems.splice(index, 1);
-
-  setItems(t, checklistItems);
+  return setItems(t, checklistItems);
 };
 
 const renderTextArea = (): string =>
@@ -112,8 +133,8 @@ function onMeatballsClick(event): void {
       mouseEvent: event,
       items: [{
         text: 'Delete',
-        callback: (callbackT): void => {
-          deleteItem(index);
+        callback: async (callbackT): Promise<void> => {
+          await deleteItem(index);
           callbackT.closePopup();
         },
       },]
@@ -136,6 +157,50 @@ function onCalendarClick(event): void {
   });
 }
 
+function onAvatarClick(event): void {
+  const item = event.target.parentElement.parentElement;
+  const index = [...item.parentElement.children].indexOf(item);
+
+  const items = [];
+
+  // If member is currently assigned
+  if (!item.querySelector('.avatar-button')) {
+    items.push({
+      text: "Remove member",
+      callback: async (callbackT) => {
+        await setMember(index, undefined);
+        callbackT.closePopup();
+      }
+    });
+  }
+
+  try {
+    boardMembers.then(members => {
+      members.forEach(member => items.push({
+        text: `${member.fullName} (${member.username})`,
+        callback: async (callbackT) => {
+          await setMember(index, member);
+          callbackT.closePopup();
+        }
+      }));
+
+      t.popup({
+        title: 'Choose member',
+        mouseEvent: event,
+        items,
+        search: {
+          count: 10,
+          placeholder: 'Search board member',
+          empty: 'No members found'
+        }
+      });
+    });
+  } catch (e) {
+    console.log("Error rendering member picker", e);
+  }
+
+}
+
 function addEventListeners(item: HTMLElement): void {
   const itemText = item.querySelector('.item-text') as HTMLElement;
   itemText.onclick = onItemClick;
@@ -145,17 +210,22 @@ function addEventListeners(item: HTMLElement): void {
 
   const calendar = item.querySelector('.due-date') as HTMLElement;
   calendar.onclick = onCalendarClick;
+
+  const avatar = item.querySelector('.avatar') as HTMLElement;
+  avatar.onclick = onAvatarClick;
 }
 
 const renderItem = (item: ChecklistItem): Node => {
   const domString = `<div class="item-container draggable-source">
-  <div class="checkbox"></div>
-  <div class="item-text">${item.text}</div>
-  <div class="due-date ${item.dueDateFriendly ? '' : 'invisible'}">
-    ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon"></div>'}
-  </div>
-  <img class="avatar" src="https://trello-avatars.s3.amazonaws.com/252bbb6c3a184e6d1391fdbab0d19f1b/50.png"/>
-  <div class="meatballs"></div>
+    <div class="checkbox"></div>
+    <div class="item-text">${item.text}</div>
+    <div class="due-date ${item.dueDateFriendly ? '' : 'invisible'}">
+      ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon"></div>'}
+    </div>
+    <div class="avatar">
+      ${item.avatarHash ? `<img src="https://trello-avatars.s3.amazonaws.com/${item.avatarHash}/50.png" title="${item.fullName} (${item.username})"/>` : '<div class="avatar-button"></div>'}
+    </div>
+    <div class="meatballs"></div>
   </div>`;
 
   return stringToNode(domString);
@@ -176,6 +246,8 @@ const addItem = (text: string): void => {
 function initialise(): void {
   checklistItems = t.arg('items');
   const checklistContainer = document.getElementById('checklist-container');
+
+  // boardMembers = getBoardMembers(token, t);
 
   const sortable = new Draggable.Sortable(
     checklistContainer,
@@ -230,15 +302,11 @@ function initialise(): void {
 initialise(); // One-time call
 t.render(function () {
   try {
-    console.log('re-render...');
-    // If a re-render is caused by the duedate, assignee or notificationTime changing, we'll need to do something about it.
+    // If a re-render is caused by the duedate or notificationTime changing, we'll need to do something about it.
     getItems(t).then((newItems) => {
       // If the length is not the same, it's not something we need to worry about
       if (newItems.length === checklistItems.length) {
         newItems.forEach((newItem, index) => {
-          if (newItem.assigneeUsername !== checklistItems[index].assigneeUsername) {
-
-          }
           if (newItem.dueDateFriendly !== checklistItems[index].dueDateFriendly) {
             updateItemDueDate(index, newItem.dueDateFriendly);
           }
@@ -260,7 +328,6 @@ t.render(function () {
 // document.getElementById('post').addEventListener('click', function () {
 //   const { card: cardId, board: boardId } = t.getContext();
 //   const key = 'bd1e7e486269d148ecd1be71ad5a3f1a';
-//   const token = '1ea2726fc20a9e13eb9865c2fa7e3757260f804298e00d0280bccf7d29c2eed1'; // test token
 //   const url = 'https://checklist-notifications.herokuapp.com/setNotification';
 
 //   const url2 = `https://api.trello.com/1/boards/${boardId}/members?key=${key}&token=${token}`;
