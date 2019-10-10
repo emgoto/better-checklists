@@ -1,7 +1,7 @@
 {
-  "name": "better-checklists",
+  "name": "checklist",
   "version": "1.0.0",
-  "description": "Better checklists power-up for Trello",
+  "description": "A checklist Power-Up for Trello",
   "main": "webpack.config.js",
   "scripts": {
     "build": "webpack",

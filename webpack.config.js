@@ -6,6 +6,7 @@ module.exports = {
     checklist: './src/checklist.ts',
     settings: './src/settings.ts',
     dueDate: './src/due-date.ts',
+    notifications: './src/notifications.ts',
   },
   output: {
     filename: '[name].js',

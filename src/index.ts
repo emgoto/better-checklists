@@ -14,7 +14,7 @@ TrelloPowerUp.initialize({
       return [];
     }
     return [{
-      text: 'Checklists+',
+      text: 'Checklist+',
       icon: `${window.location}img/icon.svg`,
       callback: function (context) {
         return context.popup({

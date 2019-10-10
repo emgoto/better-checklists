@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+    <script src="https://code.jquery.com/jquery-1.7.1.min.js"></script> <!-- Required by Trello -->
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+</head>
+
+<body>
+    <div class="dpicker-widget">
+        <h1>Notifications Settings</h1>
+        <p>When a Checklist+ task is either approaching its due date or is due, Checklist+ can automatically post a
+            comment on the card on your behalf, and @ mention the member assigned to the task.
+        </p>
+
+        <h2>Users with commenting enabled</h2>
+        <div id="commenting-enabled"></div>
+        <button id="authenticate" hidden>Authenticate</button>
+        <button id="enable">Enable commenting using your account</button>
+
+        <p><i>Note: If a comment is posted on your behalf for a task assigned to you, you will not receive a
+                notification.
+                We recommend either making sure at least two board members have given commenting permissions, or
+                creating a separate bot account just for this purpose.
+            </i></p>
+
+    </div>
+    <script src="./js/notifications.js"></script>
+</body>
+
+</html>

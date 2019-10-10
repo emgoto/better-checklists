@@ -1,5 +1,5 @@
 .buttons {
-    text-align: center
+    text-align: center;
 }
 
 .enableButton {
@@ -10,7 +10,7 @@
 
 .how-to-use {
     float: right;
-    padding-top: 8px;
+    margin-top: 8px;
 }
   
 .how-to-use:hover {

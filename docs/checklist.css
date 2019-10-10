@@ -2,6 +2,10 @@ body {
     background-color: #F4F5F7;
 }
 
+#checklist-container {
+    margin-bottom: 8px;
+}
+
 .item-container {
     border-radius: 3px;
     display: flex;
@@ -69,9 +73,12 @@ body {
 
 .avatar {
     margin: 4px;
-    background-color: transparent;
     cursor: pointer;
     height: 32px;
+    width: 32px;
+    border-radius: 25em;
+    background-color: rgba(9,30,66,.04);
+    visibility: hidden;
 }
 
 .avatar > img {
@@ -146,8 +153,4 @@ body {
 
 .item-textarea {
     height: 40px;
-}
-
-.add-an-item {
-    margin: 0 36px 0;
 }

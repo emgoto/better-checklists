@@ -1,14 +1,16 @@
 /* global axios uuidv4 */
 import { reorderArray } from './checklist-util';
-import { ChecklistItem, setItems, getItems } from './trello-util';
+import { ChecklistItem, setItems, getItems, getToken, setToken } from './trello-util';
 import { stringToNode } from './checklist-util';
 import { getBoardMembers, Member } from './member';
 declare const Draggable: any;
 declare const TrelloPowerUp: any;
+declare const Trello: any;
 
 const t = TrelloPowerUp.iframe();
 let checklistItems;
 let boardMembers;
+const token = getToken(t);
 
 const updateItemText = (text: string, index?: number): void => {
   if (index !== undefined) {
@@ -30,7 +32,7 @@ const updateItemDueDate = (index: number, dueDateFriendly?: string): void => {
     domString = `<div class="due-date-text">${dueDateFriendly}</div></div>`;
     item.classList.remove('invisible');
   } else {
-    domString = '<div class="calendar-icon"></div>';
+    domString = '<div class="calendar-icon" title="Set due date"></div>';
     item.classList.add('invisible');
   }
   item.innerHTML = "";
@@ -49,7 +51,7 @@ const setMember = async (index: number, member?: Member): Promise<any> => {
   if (member) {
     domString = `<img src="https://trello-avatars.s3.amazonaws.com/${member.avatarHash}/50.png" title="${fullName} (${username})"/>`;
   } else {
-    domString = '<div class="avatar-button"></div>';
+    domString = '<div class="avatar-button" title="Assign member"></div>';
   }
   item.innerHTML = "";
   item.appendChild(stringToNode(domString));
@@ -153,11 +155,11 @@ function onCalendarClick(event): void {
     mouseEvent: event,
     url: './due-date.html',
     args: { index, checklistItems },
-    height: 278 // initial height, can be changed later
+    height: 415
   });
 }
 
-function onAvatarClick(event): void {
+function onAvatarClickWithToken(event): void {
   const item = event.target.parentElement.parentElement;
   const index = [...item.parentElement.children].indexOf(item);
 
@@ -198,7 +200,29 @@ function onAvatarClick(event): void {
   } catch (e) {
     console.log("Error rendering member picker", e);
   }
+}
 
+function onAvatarClick(event): void {
+  token.then((token) => {
+    if (!token) {
+
+      // TODO: insert modal here instead of authorizing straight away
+      Trello.authorize({
+        type: "popup",
+        name: "Checklist+",
+        expiration: "never",
+        success: () => {
+          setToken(t, Trello.token()).then(() => {
+            this.onclick = onAvatarClickWithToken;
+            boardMembers = getBoardMembers(t, Trello.token());
+          });
+        },
+        error: () => { },
+      });
+    } else {
+      onAvatarClickWithToken(event);
+    }
+  });
 }
 
 function addEventListeners(item: HTMLElement): void {
@@ -220,10 +244,10 @@ const renderItem = (item: ChecklistItem): Node => {
     <div class="checkbox"></div>
     <div class="item-text">${item.text}</div>
     <div class="due-date ${item.dueDateFriendly ? '' : 'invisible'}">
-      ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon"></div>'}
+      ${item.dueDateFriendly ? `<div class="due-date-text">${item.dueDateFriendly}</div>` : '<div class="calendar-icon" title="Set due date"></div>'}
     </div>
     <div class="avatar">
-      ${item.avatarHash ? `<img src="https://trello-avatars.s3.amazonaws.com/${item.avatarHash}/50.png" title="${item.fullName} (${item.username})"/>` : '<div class="avatar-button"></div>'}
+      ${item.avatarHash ? `<img src="https://trello-avatars.s3.amazonaws.com/${item.avatarHash}/50.png" title="${item.fullName} (${item.username})"/>` : '<div class="avatar-button" title="Assign member"></div>'}
     </div>
     <div class="meatballs"></div>
   </div>`;
@@ -246,8 +270,12 @@ const addItem = (text: string): void => {
 function initialise(): void {
   checklistItems = t.arg('items');
   const checklistContainer = document.getElementById('checklist-container');
-
-  // boardMembers = getBoardMembers(token, t);
+  boardMembers = token.then((token) => {
+    if (token) {
+      return getBoardMembers(t, token);
+    }
+    return null;
+  });
 
   const sortable = new Draggable.Sortable(
     checklistContainer,

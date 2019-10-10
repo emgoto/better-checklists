@@ -1,38 +1,59 @@
-import { getIsChecklistEnabled, setItems } from './trello-util';
+import { getIsChecklistEnabled, setItems, getToken, setToken } from './trello-util';
 declare const TrelloPowerUp: any;
+declare const Trello: any;
 const t = TrelloPowerUp.iframe();
 
-const addEventListeners = (): void => {
-  // Shows empty list after user presses enable
-  document.getElementById('enable-btn').addEventListener('click', function () {
-    return setItems(t, [])
-      .then(function () {
-        t.closePopup();
-      }).catch(function (e) {
-        console.log('failed to setItems', e);
-      });
-  });
+document.getElementById('enable-btn').addEventListener('click', function () {
+  return setItems(t, [])
+    .then(function () {
+      t.closePopup();
+    }).catch(function (e) {
+      console.log('failed to setItems', e);
+    });
+});
 
-  // Removes list when user presses delete button
-  document.getElementById('remove-btn').addEventListener('click', function () {
-    return setItems(t, null)
-      .then(function () {
-        t.closePopup();
-      }).catch(function (e) {
-        console.log('failed to setItems', e);
-      });
-  });
-};
+// Removes list when user presses delete button
+document.getElementById('remove-btn').addEventListener('click', function () {
+  return setItems(t, null)
+    .then(function () {
+      t.closePopup();
+    }).catch(function (e) {
+      console.log('failed to setItems', e);
+    });
+});
+
+// // Shows authorization pop-up when user presses authorize button
+// document.getElementById('authorize-btn').addEventListener('click', function () {
+//   Trello.authorize({
+//     type: "popup",
+//     name: "Checklist+",
+//     expiration: "never",
+//     success: () => {
+//       setToken(t, Trello.token()).then(() => {
+//         document.getElementById('authorization').classList.add('u-hidden');
+//       });
+//     },
+//     error: () => { },
+//   });
+// });
 
 t.render(function () {
   getIsChecklistEnabled(t)
     .then(function (enabled) {
-      addEventListeners();
       if (enabled) {
         document.getElementById('remove-btn').classList.remove('u-hidden');
       } else {
+        console.log(document.getElementById('enable-btn'));
         document.getElementById('enable-btn').classList.remove('u-hidden');
       }
+
+      return getToken(t).then((token) => {
+        console.log('token', token);
+        if (!token) {
+          document.getElementById('authorization').classList.remove('u-hidden');
+        }
+      });
+
     }).catch(function (e) {
       console.log('Error rendering settings', e);
     }).finally(function () {
@@ -40,15 +61,12 @@ t.render(function () {
     });
 });
 
-
-
-
-// // Brings up information modal when user clicks "How to use Streak"
+// // Brings up information modal when user clicks "How to use Checklist+"
 // document.getElementById('how-to-use').addEventListener('click', function(){
 //   return t.modal({
 //     url: './modal.html',
 //     height: 360,
 //     fullscreen: false,
-//     title: 'Streak - habit tracker'
+//     title: 'Checklist+'
 //   })
 // });
