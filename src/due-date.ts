@@ -79,3 +79,12 @@ document.getElementById('remove-btn').addEventListener('click', function () {
     t.closePopup();
   });
 });
+
+document.getElementById('notification-setup').addEventListener('click', function () {
+  return t.modal({
+    url: './notifications.html',
+    height: 360,
+    fullscreen: false,
+    title: 'Checklist+ Notifications'
+  });
+});

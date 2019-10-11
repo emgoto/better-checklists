@@ -1,4 +1,3 @@
-/* global axios uuidv4 */
 import { reorderArray } from './checklist-util';
 import { ChecklistItem, setItems, getItems, getToken, setToken } from './trello-util';
 import { stringToNode } from './checklist-util';
@@ -9,7 +8,7 @@ declare const Trello: any;
 
 const t = TrelloPowerUp.iframe();
 let checklistItems;
-let boardMembers;
+let boardMembers = [];
 
 const updateItemText = (text: string, index?: number): void => {
   if (index !== undefined) {
@@ -178,25 +177,23 @@ function onAvatarClickWithToken(event): void {
   }
 
   try {
-    boardMembers.then(members => {
-      members.forEach(member => items.push({
-        text: `${member.fullName} (${member.username})`,
-        callback: async (callbackT) => {
-          await setMember(index, member);
-          callbackT.closePopup();
-        }
-      }));
+    boardMembers.forEach(member => items.push({
+      text: `${member.fullName} (${member.username})`,
+      callback: async (callbackT) => {
+        await setMember(index, member);
+        callbackT.closePopup();
+      }
+    }));
 
-      t.popup({
-        title: 'Choose member',
-        mouseEvent: event,
-        items,
-        search: {
-          count: 10,
-          placeholder: 'Search board member',
-          empty: 'No members found'
-        }
-      });
+    t.popup({
+      title: 'Choose member',
+      mouseEvent: event,
+      items,
+      search: {
+        count: 10,
+        placeholder: 'Search board member',
+        empty: 'No members found'
+      }
     });
   } catch (e) {
     console.log("Error rendering member picker", e);
@@ -219,7 +216,9 @@ function onAvatarClick(event): void {
             expiration: "never",
             success: () => {
               setToken(t, Trello.token());
-              boardMembers = getBoardMembers(t, Trello.token());
+              getBoardMembers(t, Trello.token()).then((b) => {
+                boardMembers = b;
+              });
               this.onclick = onAvatarClickWithToken;
             },
             error: () => { },
@@ -277,9 +276,11 @@ const addItem = (text: string): void => {
 function initialise(): void {
   checklistItems = t.arg('items');
   const checklistContainer = document.getElementById('checklist-container');
-  boardMembers = getToken(t).then((token) => {
+  getToken(t).then((token) => {
     if (token) {
-      return getBoardMembers(t, token);
+      getBoardMembers(t, token).then((b) => {
+        boardMembers = b;
+      });
     }
     return null;
   });
@@ -330,8 +331,6 @@ function initialise(): void {
 
   const items = document.querySelectorAll('.item-container') as NodeListOf<HTMLElement>;
   Array.from(items).forEach((item) => addEventListeners(item));
-
-  return;
 };
 
 initialise(); // One-time call
@@ -359,44 +358,3 @@ t.render(function () {
     console.log('Failed to render checklist', e);
   }
 });
-
-// document.getElementById('post').addEventListener('click', function () {
-//   const { card: cardId, board: boardId } = t.getContext();
-//   const key = 'bd1e7e486269d148ecd1be71ad5a3f1a';
-//   const url = 'https://checklist-notifications.herokuapp.com/setNotification';
-
-//   const url2 = `https://api.trello.com/1/boards/${boardId}/members?key=${key}&token=${token}`;
-
-//   axios.get(url2).then((response) => { console.log('done', response); });
-
-//   const assignee = 'emgyoung';
-//   const itemId = uuidv4();
-//   const item = 'please do this thing';
-//   const notificationTime = 1570261133;
-//   const dueTime = 1570261132;
-
-
-//   // const data = new URLSearchParams({
-//   //   token,
-//   //   itemId,
-//   //   cardId,
-//   //   boardId,
-//   //   assignee,
-//   //   item,
-//   //   dueTime,
-//   //   notificationTime,
-//   // });
-
-//   // axios({
-//   //   method: 'post',
-//   //   url,
-//   //   data,
-//   // }).then(function (response) {
-//   //   console.log('response', response);
-//   // }).catch(function (error) {
-//   //   console.log('Error', error);
-//   // })
-//   //   .finally(function () {
-//   //   // always executed
-//   //   });
-// });

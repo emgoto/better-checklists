@@ -1,0 +1,9 @@
+body {
+    margin: 16px;
+}
+
+.user-container {
+    display: flex;
+    justify-content: space-between;
+}
+

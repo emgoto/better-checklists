@@ -4,7 +4,7 @@
   "description": "A checklist Power-Up for Trello",
   "main": "webpack.config.js",
   "scripts": {
-    "build": "webpack",
+    "build": "webpack -d",
     "test": "jest",
     "lint": "eslint src/**/*.ts --fix"
   },
