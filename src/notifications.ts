@@ -1,10 +1,12 @@
-import { User, getToken, getUsers, setUsers } from './trello-util';
+import { User, getToken, setToken, getUsers, setUsers } from './trello-util';
 import { stringToNode } from './checklist-util';
 declare const TrelloPowerUp: any;
 declare const axios: any;
+declare const Trello: any;
 const t = TrelloPowerUp.iframe();
 const member = t.member('username');
 let users = [];
+let hasGivenPermissions = false;
 
 const url = 'https://checklist-notifications.herokuapp.com';
 
@@ -20,6 +22,17 @@ const renderUser = (user: User): Node => {
   return stringToNode(domString);
 };
 
+const showEnableOrAuthenticate = (): void => {
+  getToken(t).then((maybeToken) => {
+    if (!maybeToken) {
+      document.getElementById('authenticate-btn').style.display = 'block';
+      document.getElementById('enable-btn').style.display = 'none';
+    } else {
+      document.getElementById('enable-btn').style.display = 'block';
+    }
+  });
+};
+
 // Remove from Trello storage and from page
 const removeUserLocally = (index: number, currentUsername: string): void => {
   console.log('Removing user locally');
@@ -33,7 +46,8 @@ const removeUserLocally = (index: number, currentUsername: string): void => {
   // If user deleted themself, need to add back in the permissions button
   member.then(({ username }) => {
     if (currentUsername === username) {
-      document.getElementById('enable-btn').style.display = 'block';
+      hasGivenPermissions = false;
+      showEnableOrAuthenticate();
     }
   });
 
@@ -85,20 +99,25 @@ function initialise(): void {
       if (users.length > 0) {
         document.getElementById('enable-instructions').style.display = 'none';
       }
-      u.forEach(user => {
-        container.appendChild(renderUser(user));
 
-        // If user is already present in the list, don't need to show them the enable btn
-        member.then(({ username }) => {
-          if (user.username === username) {
-            document.getElementById('enable-btn').style.display = 'hidden';
+      member.then(({ username }) => {
+        u.forEach(user => {
+          container.appendChild(renderUser(user));
+          // If user is already present in the list, don't need to show them the enable btn
+          if (user.username == username) {
+            hasGivenPermissions = true;
           }
         });
-      });
 
-      // Add listeners to the delete icons
-      const items = container.querySelectorAll('.delete-icon') as NodeListOf<HTMLElement>;
-      Array.from(items).forEach((item) => item.onclick = onDeleteClick);
+        // If we're going to show the enable button, double check they've authenticated
+        if (!hasGivenPermissions) {
+          showEnableOrAuthenticate();
+        }
+
+        // Add listeners to the delete icons
+        const items = container.querySelectorAll('.delete-icon') as NodeListOf<HTMLElement>;
+        Array.from(items).forEach((item) => item.onclick = onDeleteClick);
+      });
     }
   });
 };
@@ -123,6 +142,7 @@ document.getElementById('enable-btn').addEventListener('click', function () {
       });
 
       axios({ method: 'post', url: `${url}/user`, data }).then(function (response) {
+        hasGivenPermissions = true;
         const item = { id, username: currentUsername };
         console.log('Successfully enabled', response);
         document.getElementById('enable-btn').style.display = 'none';
@@ -143,9 +163,32 @@ document.getElementById('enable-btn').addEventListener('click', function () {
         document.getElementById('enable-text').style.display = 'block';
       })
         .finally(function () {
-
+          // Done
         });
     });
+  });
+});
+
+document.getElementById('authenticate-btn').addEventListener('click', function () {
+  t.popup({
+    type: 'confirm',
+    title: 'Authorize Checklist+',
+    mouseEvent: event,
+    message: 'To enable assigning board members to tasks, we require you to authorize with Checklist+.',
+    confirmText: 'Authorize',
+    onConfirm: () => {
+      Trello.authorize({
+        type: "popup",
+        name: "Checklist+",
+        expiration: "never",
+        success: () => {
+          setToken(t, Trello.token());
+          document.getElementById('authenticate-btn').style.display = 'none';
+          document.getElementById('enable-btn').style.display = 'block';
+        },
+        error: () => { },
+      });
+    },
   });
 });
 

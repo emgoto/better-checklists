@@ -52,6 +52,14 @@ body {
     animation: spin 1s linear infinite;
 }
 
+#authenticate-btn {
+    display: none;
+}
+
+#enable-btn {
+    display: none;
+}
+
 #enable-spinner {
     display: none;
     border: 2px solid #f3f3f3; /* Light grey */
