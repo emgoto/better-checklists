@@ -12,30 +12,37 @@
 <body>
     <div>
         <h1>Notification Settings</h1>
-        <p>When a task is either approaching its due date or is due, Checklist+ can post a
-            comment on the card, and @ mention the member assigned to the task. This will send out a
+        <p>When notifications are enabled for tasks, Checklist+ can post a
+            comment on the card, and @mention the member assigned to the task. This will send out a
             notification to that user, looking something like this:
         </p>
 
         <p>Insert example iamge here!</p>
 
-        <p>
-            To enable this feature, at least one user needs to have authenticated and given permission for comments to
-            be posted on their behalf.
-        </p>
-
-        <p>
-            <i>Please note that if a comment is posted on your behalf for a task assigned to you, you won't receive a
-                notification.
-                We recommend making sure at least two board members have given commenting permissions, or
-                creating a separate bot account for this purpose.
-            </i>
-        </p>
-
         <h2>Users with commenting permissions enabled</h2>
-        <div id="commenting-enabled"></div>
+        <div id="commenting-enabled">
+            <div id="enable-instructions">To enable this feature, at least one user needs to have enabled comments to be
+                posted using their account.
+            </div>
+        </div>
         <button id="authenticate-btn" hidden>Authenticate</button>
-        <button id="enable-btn">Enable commenting using your account</button>
+        <button id="enable-btn">
+            <div id="enable-text">Enable commenting using your account</div>
+            <div id="enable-spinner"></div>
+        </button>
+
+        <div id="solo-instructions">
+            <br /><br />
+            <p>
+                If you are the only user that has enabled commenting, @mentions by Checklist+ will always use your
+                account.
+                This effectively means that you will not receive any notifications for @mentioning yourself!
+            </p>
+            <p>
+                We recommend making sure at least two board members have enabled commenting, or
+                creating a separate bot account for this purpose.
+            </p>
+        </div>
     </div>
     <script src="./js/notifications.js"></script>
 </body>

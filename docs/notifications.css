@@ -5,5 +5,66 @@ body {
 .user-container {
     display: flex;
     justify-content: space-between;
+    height: 40px;
+    align-items: center;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 3px;
 }
 
+.user-container:hover {
+    background-color:  	#EBECEE;
+}
+
+.user-container:hover > div {
+    visibility: visible;
+}
+
+.delete-btn {
+    visibility: hidden;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    box-sizing: border-box;
+}
+
+.delete-icon{
+    background: transparent url(img/delete-icon.svg) no-repeat 4px 4px/16px 16px;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.delete-icon:hover {
+    background-color: #DADAE2;
+}
+
+.spinner {
+    display: none;
+    border: 2px solid #f3f3f3; /* Light grey */
+    border-top: 2px solid #666666;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    margin: 4px;
+    animation: spin 1s linear infinite;
+}
+
+#enable-spinner {
+    display: none;
+    border: 2px solid #f3f3f3; /* Light grey */
+    border-top: 2px solid #666666;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    animation: spin 1s linear infinite;
+    margin: 2px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
