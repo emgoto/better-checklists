@@ -1,13 +1,15 @@
 export type ChecklistItem = {
     text: string;
+    id?: string; // uuid - only required once notification is being used
     isComplete?: boolean;
     username?: string;
     fullName?: string;
+    userId?: string;
     avatarHash?: string;// last known avatarHash //TODO: need to re-get it in case it has changed
     dueDate?: number;
     dueDateFriendly?: string; // Date in human readbable format e.g. 1 Jan 12:00pm
-    notificationTime?: number;
-};
+    notificationOffset?: number; // Minutes before the dueTime we want to send the notification. -1 if no notification.
+}
 
 export type User = {
     id: string;
