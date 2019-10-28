@@ -38,10 +38,11 @@ const updateItemDueDate = (index: number, dueDateFriendly?: string): void => {
 };
 
 const setMember = async (index: number, member?: Member): Promise<any> => {
-  const { username = undefined, fullName = undefined, avatarHash = undefined } = member || {};
+  const { username = undefined, fullName = undefined, avatarHash = undefined, id = undefined } = member || {};
   checklistItems[index].username = username;
   checklistItems[index].fullName = fullName;
   checklistItems[index].avatarHash = avatarHash;
+  checklistItems[index].userId = id;
 
   const items = document.querySelectorAll('.avatar') as NodeListOf<HTMLElement>;
   const item = items[index];
@@ -344,7 +345,7 @@ t.render(function () {
           if (newItem.dueDateFriendly !== checklistItems[index].dueDateFriendly) {
             updateItemDueDate(index, newItem.dueDateFriendly);
           }
-          if (newItem.notificationTime !== checklistItems[index].notificationTime) {
+          if (newItem.notificationOffset !== checklistItems[index].notificationOffset) {
 
           }
         });

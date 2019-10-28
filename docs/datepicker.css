@@ -176,3 +176,11 @@
 #notification-setup:hover {
   cursor: pointer;
 }
+
+#set-notifications {
+  display: none;
+}
+
+#notification-setup {
+    display: none;
+}

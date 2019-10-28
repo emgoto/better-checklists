@@ -9,6 +9,8 @@
     <script src="https://trello.com/1/client.js?key=bd1e7e486269d148ecd1be71ad5a3f1a"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./js/uuid.js"></script>
 </head>
 
 <body>
@@ -30,6 +32,21 @@
         </div>
         <div class="pickers js-dpicker-cal">
             <div id="datepicker"></div>
+        </div>
+        <div id="set-notifications">
+            <h3>Set Reminder</h3>
+            <select id="reminder-select">
+                <option selected="selected" value="-1">None</option>
+                <option value="0">At Time of Due Date</option>
+                <option value="5">5 Minutes Before</option>
+                <option value="10">10 Minutes Before</option>
+                <option value="15">15 Minutes Before</option>
+                <option value="60">1 Hour Before</option>
+                <option value="120">2 Hours Before</option>
+                <option value="1440">1 Day Before</option>
+                <option value="2880">2 Days Before</option>
+            </select>
+            <span class="u-quiet">A reminder will be sent to the member assigned to this task.</span>
         </div>
         <div class="datepicker-confirm-btns" style="margin-top:4px;">
             <button id="save-btn" class="mod-primary mod-bottom">Save</button>
