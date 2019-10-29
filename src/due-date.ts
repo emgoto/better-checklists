@@ -63,6 +63,7 @@ t.render(function () {
   getUsers(t).then((users) => {
     if (users && users.length > 0) {
       document.getElementById('set-notifications').style.display = 'block';
+      document.getElementById('notification-settings').style.display = 'block';
     } else {
       document.getElementById('notification-setup').style.display = 'block';
     }
@@ -140,11 +141,15 @@ document.getElementById('remove-btn').addEventListener('click', function () {
   });
 });
 
-document.getElementById('notification-setup').addEventListener('click', function () {
+const notificationsModal = function () {
   return t.modal({
     url: './notifications.html',
     height: 360,
     fullscreen: false,
     title: 'Checklist+ Notifications'
   });
-});
+};
+
+document.getElementById('notification-setup').addEventListener('click', notificationsModal);
+document.getElementById('notification-settings').addEventListener('click', notificationsModal);
+
