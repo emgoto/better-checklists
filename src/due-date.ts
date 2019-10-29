@@ -31,14 +31,19 @@ const i18n = {
 const generateUuid = function (): string { return ("" + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function () { return (0 | Math.random() * 16).toString(16); }); };
 
 t.render(function () {
-  console.log("rendering...");
   const dueDate = checklistItems[index].dueDate;
   if (dueDate) {
     document.getElementById('remove-btn').classList.remove('u-hidden');
   }
 
   if (!picker) {
-    const defaultDate = moment.unix(dueDate).toDate() || now;
+    const defaultDate = dueDate ? moment.unix(dueDate / 1000).toDate() : now;
+    console.log('duedate', dueDate);
+
+    if (dueDate) {
+      const timeInput = document.getElementById('time-input') as HTMLInputElement;
+      timeInput.value = moment(dueDate).format(TIME_FORMAT);
+    }
 
     picker = new Pikaday({
       bound: false,
@@ -47,6 +52,7 @@ t.render(function () {
       setDefaultDate: true,
       container: document.getElementById('datepicker'),
       field: document.getElementById('date-input'),
+      keyboardInput: false, // otherwise all arrow key presses while pop-up is open change the date
       i18n,
       onDraw: function (): void {
         resize();
@@ -63,8 +69,8 @@ t.render(function () {
   });
 });
 
-const getNotificationTime = (dueTime: number, minutes: number): string | null => {
-  const notificationTime = (dueTime - minutes * 60 * 1000); // TODO: why is this in seconds
+const getNotificationTime = (dueDate: number, minutes: number): string | null => {
+  const notificationTime = (dueDate - minutes * 60 * 1000);
   if (moment.utc().valueOf() < notificationTime) {
     return notificationTime.toString();
   } else {
@@ -72,9 +78,7 @@ const getNotificationTime = (dueTime: number, minutes: number): string | null =>
   }
 };
 
-const getAndSetNotification = (dueTime: number): Promise<void> => {
-  const select = document.getElementById('reminder-select') as HTMLSelectElement;
-  const minutes = parseInt(select.value);
+const getAndSetNotification = (dueTimeInSeconds: number, minutes: number): Promise<void> => {
   const username = checklistItems[index].username;
 
   if (minutes > -1 && username) {
@@ -82,6 +86,8 @@ const getAndSetNotification = (dueTime: number): Promise<void> => {
     const { card: cardId, board: boardId } = t.getContext();
 
     const itemId = id ? id : generateUuid();
+
+    const dueTime = dueTimeInSeconds * 1000;
 
     const notificationTime: string | null = getNotificationTime(dueTime, minutes);
     if (notificationTime !== null) {
@@ -106,15 +112,16 @@ document.getElementById('save-btn').addEventListener('click', function () {
   if (!timeMoment.isValid()) {
     timeMoment = moment('12:00 PM', TIME_FORMAT);
   }
-  const unixTime = picker.getMoment().hour(timeMoment.hour()).minute(timeMoment.minute()).unix() * 1000;
+  const unixTimeInSeconds = picker.getMoment().hour(timeMoment.hour()).minute(timeMoment.minute()).unix();
+
   const displayDate = picker.getMoment().hour(timeMoment.hour()).minute(timeMoment.minute()).format('D MMM h:mm A');
-  checklistItems[index].dueDate = unixTime;
+  checklistItems[index].dueDate = unixTimeInSeconds * 1000;
   checklistItems[index].dueDateFriendly = displayDate;
 
   const select = document.getElementById('reminder-select') as HTMLSelectElement;
   checklistItems[index].notificationOffset = select.value;
 
-  getAndSetNotification(unixTime).then(() => {
+  getAndSetNotification(unixTimeInSeconds, parseInt(select.value, 10)).then(() => {
     setItems(t, checklistItems).then(() => {
       t.closePopup();
     });
